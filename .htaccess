@@ -1,0 +1,14 @@
+# Link Shortening Configuration
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Map /home to index.html
+    RewriteRule ^home/?$ index.html [L]
+
+    # Map /admin to admin.html
+    RewriteRule ^admin/?$ admin.html [L]
+
+    # Root URL maps to home
+    RewriteRule ^$ /home [R=301,L]
+</IfModule>
