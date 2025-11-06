@@ -5,13 +5,13 @@
 }
 
 :root {
-    --bg-primary: #0a0e27;
-    --bg-secondary: #141b2d;
+    --bg-primary: #4b4c4b;
+    --bg-secondary: #363636;
     --bg-card: #1a2332;
     --accent: #4a90e2;
     --accent-hover: #5ba0f2;
     --text-primary: #ffffff;
-    --text-secondary: #b0b8c4;
+    --text-secondary: #ffffff;
     --success: #4caf50;
     --warning: #ff9800;
     --error: #f44336;
@@ -139,9 +139,9 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    background: var(--bg-card);
+    background: #000000;
     border-bottom: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
     z-index: 1000;
 }
 
@@ -163,11 +163,23 @@ body {
 .nav-brand h1 {
     font-size: 1.8rem;
     font-weight: 700;
-    background: linear-gradient(135deg, var(--accent) 0%, #6ab7ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-logo {
+    height: 2.5rem;
+    width: auto;
+    object-fit: contain;
+}
+
+.nav-fargo {
+    color: #ffffff;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .nav-menu {
@@ -177,7 +189,7 @@ body {
 }
 
 .nav-link {
-    color: var(--text-secondary);
+    color: #ffffff;
     text-decoration: none;
     font-weight: 500;
     padding: 0.5rem 1rem;
@@ -187,7 +199,7 @@ body {
 }
 
 .nav-link:hover {
-    color: var(--accent);
+    color: #ffffff;
     background: var(--bg-secondary);
 }
 
@@ -261,18 +273,97 @@ main {
 
 /* Events Section */
 .events-section {
-    background: var(--bg-card);
+    background: #686968;
     border-radius: 12px;
     padding: 2rem;
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 6px rgba(139, 139, 139, 0.3);
     margin-bottom: 2rem;
+}
+
+/* Support Section */
+.support-section {
+    background: #2a2a2a;
+    border-radius: 0;
+    padding: 3rem 2rem;
+    box-shadow: 0 4px 6px rgba(139, 139, 139, 0.3);
+    width: 100vw;
+    max-width: 100vw;
+    position: relative;
+    left: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    padding-left: max(2rem, calc((100vw - 1200px) / 2));
+    padding-right: max(2rem, calc((100vw - 1200px) / 2));
+}
+
+.support-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+}
+
+.support-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.support-card {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 2rem;
+    border: 1px solid var(--border);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+}
+
+.support-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.support-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.support-logo {
+    height: 3rem;
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
+}
+
+.venmo-logo {
+    border-radius: 12px;
+}
+
+.support-card h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0 0 0.5rem 0;
+}
+
+.support-card p {
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.6;
+    font-size: 0.95rem;
 }
 
 .events-section h2 {
     font-size: 1.8rem;
     margin-bottom: 1.5rem;
-    color: var(--accent);
+    color: #ffffff;
 }
 
 .events-list {
@@ -291,7 +382,7 @@ main {
 
 .event-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
 }
 
 .event-header {
@@ -320,7 +411,7 @@ main {
 .event-date-day {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--accent);
+    color: #ffffff;
     line-height: 1;
 }
 
@@ -362,7 +453,7 @@ main {
 .countdown-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--accent);
+    color: #ffffff;
 }
 
 .countdown-label {
@@ -389,7 +480,7 @@ main {
 
 /* Server Card */
 .server-card {
-    background: var(--bg-card);
+    background: #486968;
     border-radius: 12px;
     border: 1px solid var(--border);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
@@ -501,7 +592,7 @@ main {
 .server-ip-display .ip-address {
     font-family: 'Courier New', monospace;
     font-weight: 600;
-    color: var(--accent);
+    color: #ffffff;
     font-size: 0.85rem;
     word-break: break-all;
     overflow-wrap: break-word;
@@ -662,11 +753,12 @@ main {
 }
 
 footer {
-    background: var(--bg-card);
+    background: #000000;
     border-top: 1px solid var(--border);
     margin-top: 4rem;
     padding: 3rem 2rem 1.5rem;
     color: var(--text-secondary);
+    box-shadow: 0 -2px 8px rgba(255, 255, 255, 0.3);
 }
 
 .footer-content {
@@ -679,7 +771,7 @@ footer {
 }
 
 .footer-section h3 {
-    color: var(--accent);
+    color: #ffffff;
     font-size: 1.2rem;
     margin-bottom: 1rem;
     font-weight: 600;
@@ -712,7 +804,7 @@ footer {
 }
 
 .footer-links a:hover {
-    color: var(--accent);
+    color: #ffffff;
 }
 
 .footer-bottom {
@@ -880,6 +972,10 @@ footer {
         text-overflow: ellipsis;
     }
 
+    .nav-logo {
+        height: 1.9rem;
+    }
+
     .nav-menu {
         flex-shrink: 0;
     }
@@ -935,6 +1031,38 @@ footer {
 
     .events-section h2 {
         font-size: 1.5rem;
+    }
+
+    .support-section {
+        padding: 1.5rem 1rem;
+        width: 100vw;
+        max-width: 100vw;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        left: 50%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .support-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .support-cards {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .support-card {
+        padding: 1.5rem;
+    }
+
+    .support-icon {
+        font-size: 2.5rem;
+    }
+
+    .support-card h3 {
+        font-size: 1.1rem;
     }
 
     .event-card {
@@ -1122,6 +1250,10 @@ footer {
         font-size: 1.2rem;
     }
 
+    .nav-logo {
+        height: 1.6rem;
+    }
+
     .nav-link {
         padding: 0.5rem;
         font-size: 0.85rem;
@@ -1234,6 +1366,10 @@ footer {
 @media (max-width: 360px) {
     .nav-brand h1 {
         font-size: 1.1rem;
+    }
+
+    .nav-logo {
+        height: 1.5rem;
     }
 
     .nav-link {

@@ -417,29 +417,58 @@ async function confirmRenameImage() {
 // Delete image
 async function deleteImage() {
     closeContextMenu();
-    if (!selectedImageId) return;
+    if (!selectedImageId) {
+        console.error('No image selected for deletion');
+        return;
+    }
     
     const image = uploadedImages.find(img => img.id == selectedImageId);
-    if (!image) return;
+    if (!image) {
+        console.error('Image not found:', selectedImageId);
+        return;
+    }
     
     if (confirm(`Are you sure you want to delete "${image.name}"?`)) {
         try {
-            const response = await fetch(`${API_URL}?action=delete_image&id=${selectedImageId}`);
+            const response = await fetch(`${API_URL}?action=delete_image&id=${selectedImageId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const result = await response.json();
             
             if (result.success) {
-                // Reload images from server
+                // Reload images and slideshow config from server
                 await loadUploadedImages();
-                displayImages();
+                await loadSlideshowConfig();
+                await displayImages();
                 if (typeof showToast === 'function') {
                     showToast('Image Deleted', `"${image.name}" has been deleted`, 'success');
+                } else {
+                    alert(`"${image.name}" has been deleted successfully.`);
                 }
             } else {
-                alert('Error deleting image: ' + (result.error || 'Unknown error'));
+                const errorMsg = result.error || 'Unknown error';
+                console.error('Delete failed:', errorMsg);
+                if (typeof showToast === 'function') {
+                    showToast('Error', 'Error deleting image: ' + errorMsg, 'error');
+                } else {
+                    alert('Error deleting image: ' + errorMsg);
+                }
             }
         } catch (error) {
             console.error('Error deleting image:', error);
-            alert('Error deleting image. Please try again.');
+            if (typeof showToast === 'function') {
+                showToast('Error', 'Error deleting image. Please try again.', 'error');
+            } else {
+                alert('Error deleting image. Please try again.');
+            }
         }
     }
     

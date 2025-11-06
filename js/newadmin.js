@@ -365,8 +365,14 @@ async function confirmRemoveServer(dbId, battlemetricsId) {
 
 function closeDeleteModal() {
     const deleteModal = document.getElementById('deleteModal');
-    if (deleteModal) deleteModal.style.display = 'none';
+    if (deleteModal) {
+        deleteModal.style.display = 'none';
+        const header = deleteModal.querySelector('.delete-modal-header h2');
+        if (header) header.textContent = 'Remove Server';
+    }
     pendingDeleteServerId = null;
+    pendingDeleteEventId = null;
+    pendingDeleteEventTitle = null;
 }
 
 async function confirmDelete() {
@@ -375,8 +381,12 @@ async function confirmDelete() {
         const server = servers.find(s => s.dbId == pendingDeleteServerId);
         const serverName = server ? (server.displayName || server.name) : 'Server';
         await removeServer(pendingDeleteServerId);
-        showToast('Server Removed', `"${serverName}" has been removed successfully.`, 'success');
+        if (typeof showToast === 'function') {
+            showToast('Server Removed', `"${serverName}" has been removed successfully.`, 'success');
+        }
         closeDeleteModal();
+    } else if (pendingDeleteEventId) {
+        await removeEvent(pendingDeleteEventId);
     }
 }
 
@@ -391,6 +401,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Battlemetrics input enter handler
     const battlemetricsIdInput = document.getElementById('battlemetricsId');
     if (battlemetricsIdInput) { battlemetricsIdInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addServer(); }); }
+    
+    // Event form enter handlers
+    const eventTitleInput = document.getElementById('eventTitle');
+    const eventDateInput = document.getElementById('eventDate');
+    if (eventTitleInput) eventTitleInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); eventDateInput?.focus(); } });
+    if (eventDateInput) eventDateInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addEvent(); });
 
     // Delete modal overlay handler
     const deleteModal = document.getElementById('deleteModal');
@@ -525,6 +541,7 @@ function initSidebar() {
             }
             
             // Show/hide floating add image button (only for slideshow tab)
+            const floatingAddEventBtn = document.getElementById('floatingAddEventBtn');
             if (floatingAddImageBtn) {
                 if (sectionName === 'slideshow') {
                     floatingAddImageBtn.style.display = 'flex';
@@ -534,6 +551,19 @@ function initSidebar() {
                     }
                 } else {
                     floatingAddImageBtn.style.display = 'none';
+                }
+            }
+            
+            // Show/hide floating add event button (only for events tab)
+            if (floatingAddEventBtn) {
+                if (sectionName === 'events') {
+                    floatingAddEventBtn.style.display = 'flex';
+                    // Load and display events when events tab is opened
+                    if (typeof displayAdminEvents === 'function') {
+                        displayAdminEvents();
+                    }
+                } else {
+                    floatingAddEventBtn.style.display = 'none';
                 }
             }
         });
@@ -564,6 +594,7 @@ function initSidebar() {
         
         // Show/hide floating add image button on initial load
         const floatingAddImageBtn = document.getElementById('floatingAddImageBtn');
+        const floatingAddEventBtn = document.getElementById('floatingAddEventBtn');
         if (floatingAddImageBtn) {
             if (sectionName === 'slideshow') {
                 floatingAddImageBtn.style.display = 'flex';
@@ -573,6 +604,19 @@ function initSidebar() {
                 }
             } else {
                 floatingAddImageBtn.style.display = 'none';
+            }
+        }
+        
+        // Show/hide floating add event button on initial load
+        if (floatingAddEventBtn) {
+            if (sectionName === 'events') {
+                floatingAddEventBtn.style.display = 'flex';
+                // Load and display events when events tab is opened
+                if (typeof displayAdminEvents === 'function') {
+                    displayAdminEvents();
+                }
+            } else {
+                floatingAddEventBtn.style.display = 'none';
             }
         }
     } else {
@@ -698,9 +742,19 @@ async function addEvent() {
             
             // Refresh display
             await displayAdminEvents();
-            alert('Event added successfully!');
+            closeAddEventModal();
+            
+            if (typeof showToast === 'function') {
+                showToast('Event Added', 'Event added successfully!', 'success');
+            } else {
+                alert('Event added successfully!');
+            }
         } else {
-            alert('Error adding event: ' + (result.error || 'Unknown error'));
+            if (typeof showToast === 'function') {
+                showToast('Error', 'Error adding event: ' + (result.error || 'Unknown error'), 'error');
+            } else {
+                alert('Error adding event: ' + (result.error || 'Unknown error'));
+            }
         }
     } catch (error) {
         console.error('Error adding event:', error);
@@ -708,17 +762,78 @@ async function addEvent() {
     }
 }
 
-async function removeEvent(eventId) {
-    if (!confirm('Are you sure you want to remove this event?')) {
-        return;
+let pendingDeleteEventId = null;
+let pendingDeleteEventTitle = null;
+
+function confirmRemoveEvent(eventId, eventTitle) {
+    pendingDeleteEventId = eventId;
+    pendingDeleteEventTitle = eventTitle;
+    const el = document.getElementById('deleteServerName');
+    if (el) el.textContent = `"${eventTitle}"`;
+    const deleteModal = document.getElementById('deleteModal');
+    if (deleteModal) {
+        const header = deleteModal.querySelector('.delete-modal-header h2');
+        if (header) header.textContent = 'Remove Event';
+        deleteModal.style.display = 'flex';
     }
-    
+}
+
+async function removeEvent(eventId) {
     try {
         await deleteEvent(eventId);
         await displayAdminEvents();
+        if (typeof showToast === 'function') {
+            showToast('Event Removed', `"${pendingDeleteEventTitle || 'Event'}" has been removed successfully.`, 'success');
+        }
+        closeDeleteModal();
     } catch (error) {
         console.error('Error removing event:', error);
-        alert('Error removing event. Please try again.');
+        if (typeof showToast === 'function') {
+            showToast('Error', 'Error removing event. Please try again.', 'error');
+        } else {
+            alert('Error removing event. Please try again.');
+        }
+    }
+}
+
+// Open add event modal
+function openAddEventModal() {
+    const modal = document.getElementById('addEventModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => {
+            const eventTitleInput = document.getElementById('eventTitle');
+            if (eventTitleInput) eventTitleInput.focus();
+        }, 100);
+
+        const closeOnBackground = function(e) {
+            if (e.target === modal) {
+                closeAddEventModal();
+                modal.removeEventListener('click', closeOnBackground);
+            }
+        };
+        modal.addEventListener('click', closeOnBackground);
+
+        const closeOnEscape = function(e) {
+            if (e.key === 'Escape') {
+                closeAddEventModal();
+                document.removeEventListener('keydown', closeOnEscape);
+            }
+        };
+        document.addEventListener('keydown', closeOnEscape);
+    }
+}
+
+function closeAddEventModal() {
+    const modal = document.getElementById('addEventModal');
+    if (modal) {
+        modal.style.display = 'none';
+        const eventTitle = document.getElementById('eventTitle');
+        const eventDate = document.getElementById('eventDate');
+        const eventDescription = document.getElementById('eventDescription');
+        if (eventTitle) eventTitle.value = '';
+        if (eventDate) eventDate.value = '';
+        if (eventDescription) eventDescription.value = '';
     }
 }
 
@@ -729,7 +844,7 @@ async function displayAdminEvents() {
     if (!adminList) return;
     
     if (events.length === 0) {
-        adminList.innerHTML = '<div class="empty-state">No events added yet. Add your first event above.</div>';
+        adminList.innerHTML = '<div class="empty-state">No events added yet. Add your first event using the + button.</div>';
         return;
     }
     
@@ -738,7 +853,8 @@ async function displayAdminEvents() {
         return new Date(a.date) - new Date(b.date);
     });
     
-    adminList.innerHTML = sortedEvents.map(event => {
+    adminList.innerHTML = '';
+    sortedEvents.forEach(event => {
         const eventDate = new Date(event.date);
         const dateStr = eventDate.toLocaleString('en-US', {
             month: 'short',
@@ -749,17 +865,45 @@ async function displayAdminEvents() {
             hour12: true
         });
         
-        return `
-            <div class="admin-server-item">
-                <div class="admin-server-info">
-                    <strong>${escapeHtml(event.title)}</strong>
-                    <span class="admin-server-id">${dateStr}</span>
-                    ${event.description ? `<span style="display: block; margin-top: 0.25rem; color: var(--text-secondary); font-size: 0.9rem;">${escapeHtml(event.description)}</span>` : ''}
+        const day = eventDate.getDate();
+        const month = eventDate.toLocaleDateString('en-US', { month: 'short' });
+        const time = eventDate.toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+        });
+        
+        const card = document.createElement('div');
+        card.className = 'server-card admin-server-card';
+        card.id = `admin-event-${event.id}`;
+        card.innerHTML = `
+            <button class="admin-remove-x" onclick="confirmRemoveEvent('${event.id}', '${escapeHtml(event.title)}')" aria-label="Remove event">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>
+            <div class="server-card-header">
+                <h2 class="server-card-title">${escapeHtml(event.title)}</h2>
+                <div class="event-date-display">
+                    <div class="event-date-day">${day}</div>
+                    <div class="event-date-month">${month}</div>
                 </div>
-                <button class="remove-server-btn" onclick="removeEvent('${event.id}')">Remove</button>
+            </div>
+            <div class="server-card-content">
+                <div class="server-info-grid">
+                    <div class="info-card">
+                        <div class="info-label">Date & Time</div>
+                        <div class="info-value">${dateStr}</div>
+                    </div>
+                    ${event.description ? `
+                    <div class="info-card" style="grid-column: 1 / -1;">
+                        <div class="info-label">Description</div>
+                        <div class="info-value" style="font-size: 0.9rem; line-height: 1.4;">${escapeHtml(event.description)}</div>
+                    </div>
+                    ` : ''}
+                </div>
             </div>
         `;
-    }).join('');
+        adminList.appendChild(card);
+    });
 }
 
 // Ensure admin UI elements (header, floating add buttons, server section) are visible
@@ -791,10 +935,18 @@ function ensureAdminUI(){
             }
 
             // Toggle slideshow add image button
+            const floatingAddEventBtn = document.getElementById('floatingAddEventBtn');
             if (sectionName === 'slideshow'){
                 if (floatingAddImageBtn) floatingAddImageBtn.style.display = 'flex';
             } else {
                 if (floatingAddImageBtn) floatingAddImageBtn.style.display = 'none';
+            }
+            
+            // Toggle events add button
+            if (sectionName === 'events'){
+                if (floatingAddEventBtn) floatingAddEventBtn.style.display = 'flex';
+            } else {
+                if (floatingAddEventBtn) floatingAddEventBtn.style.display = 'none';
             }
         }
     }catch(e){

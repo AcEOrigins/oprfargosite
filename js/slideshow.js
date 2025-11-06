@@ -25,9 +25,7 @@ async function loadSlideshowImages() {
     
     // Default fallback
     return {
-        slide1: 'assets/opr1.jpg',
-        slide2: 'images/slide2.jpg',
-        slide3: 'images/slide3.jpg'
+        slide1: 'assets/opr1.jpg'
     };
 }
 
